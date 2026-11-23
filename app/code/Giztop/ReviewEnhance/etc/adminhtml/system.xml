@@ -1,0 +1,225 @@
+<?xml version="1.0"?>
+<!--
+  GIZTOP Review Enhance - admin configuration.
+  Stores > Settings > Configuration > Giztop > Review Enhance
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_file.xsd">
+    <system>
+        <tab id="giztop" translate="label" sortOrder="500">
+            <label>Giztop</label>
+        </tab>
+        <section id="giztop_review" translate="label" type="text" sortOrder="100" showInDefault="1" showInWebsite="1" showInStore="1">
+            <class>separator-top</class>
+            <label>Review Enhance</label>
+            <tab>giztop</tab>
+            <resource>Magento_Config::config</resource>
+            <group id="chat" translate="label" type="text" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Q&amp;A Chat Bubble</label>
+                <field id="enabled" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Enabled</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <config_path>giztop_review/chat/enabled</config_path>
+                </field>
+                <field id="store_name" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Store Name</label>
+                    <config_path>giztop_review/chat/store_name</config_path>
+                </field>
+                <field id="store_badge" translate="label" type="text" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Store Badge</label>
+                    <config_path>giztop_review/chat/store_badge</config_path>
+                </field>
+                <field id="store_avatar" translate="label comment" type="text" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Store Avatar URL</label>
+                    <comment>Leave empty to use the store logo. Accepts an absolute URL or a static asset reference such as Vendor_Module::images/avatar.png</comment>
+                    <config_path>giztop_review/chat/store_avatar</config_path>
+                </field>
+            </group>
+            <group id="avatar" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Reviewer Avatar</label>
+                <field id="enabled" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Enabled</label>
+                    <comment>When disabled, the avatar endpoint returns 404 and templates fall back to initials.</comment>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <config_path>giztop_review/avatar/enabled</config_path>
+                </field>
+                <field id="ttl" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Cache TTL (seconds)</label>
+                    <comment>Local avatar cache lifetime and browser max-age. Default: 2592000 (30 days).</comment>
+                    <config_path>giztop_review/avatar/ttl</config_path>
+                </field>
+            </group>
+            <group id="form" translate="label" type="text" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Review Form</label>
+                <field id="email_label" translate="label" type="text" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Email Field Label</label>
+                    <config_path>giztop_review/form/email_label</config_path>
+                </field>
+            </group>
+            <group id="moderation" translate="label" type="text" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Content Moderation</label>
+                <field id="enabled" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Enabled</label>
+                    <comment>When enabled, new review submissions containing a blacklisted keyword or domain are rejected with the message below. Admin edits are never blocked.</comment>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <config_path>giztop_review/moderation/enabled</config_path>
+                </field>
+                <field id="keywords_blacklist" translate="label comment" type="textarea" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Keyword Blacklist</label>
+                    <comment>One entry per line, case-insensitive substring match anywhere in the review text. Empty lines and lines starting with # are ignored.</comment>
+                    <config_path>giztop_review/moderation/keywords_blacklist</config_path>
+                </field>
+                <field id="domains_blacklist" translate="label comment" type="textarea" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Domain Blacklist</label>
+                    <comment>One entry per line. Accepts bare domains (example.com), URLs (https://example.com/x) and www. links. Matches wherever the domain appears: links, email addresses, www. prefixes.</comment>
+                    <config_path>giztop_review/moderation/domains_blacklist</config_path>
+                </field>
+                <field id="domains_whitelist" translate="label comment" type="textarea" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Domain Whitelist</label>
+                    <comment>Same format as the blacklist. Whitelisted domains (including their subdomains) are never blocked. Use for domains that appear in the blacklist but are safe, e.g. allow example.com while spam.example.com is blocked.</comment>
+                    <config_path>giztop_review/moderation/domains_whitelist</config_path>
+                </field>
+                <field id="whitelist_priority" translate="label comment" type="select" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Whitelist Priority</label>
+                    <comment>Domain only: whitelisted domains are exempt from the blacklist but keywords still apply. Full bypass: any whitelisted domain in the text skips all remaining moderation.</comment>
+                    <source_model>Giztop\ReviewEnhance\Model\Config\Source\WhitelistPriority</source_model>
+                    <config_path>giztop_review/moderation/whitelist_priority</config_path>
+                </field>
+                <field id="message" translate="label comment" type="text" sortOrder="60" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Rejection Message</label>
+                    <comment>Shown to the customer when a review is rejected. Default: Your review contains content that is not allowed.</comment>
+                    <config_path>giztop_review/moderation/message</config_path>
+                </field>
+            </group>
+            <group id="notify" translate="label" type="text" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Reply Notification Email</label>
+                <field id="enabled" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Enabled</label>
+                    <comment>Send the reviewer an email when their approved review contains a store answer. Only applies when the review nickname is an email address; each review notifies at most once.</comment>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <config_path>giztop_review/notify/enabled</config_path>
+                </field>
+                <field id="template" translate="label comment" type="select" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Email Template</label>
+                    <comment>Template used for the reply notification email. Default: Giztop Review Reply Notification.</comment>
+                    <source_model>Giztop\ReviewEnhance\Model\Config\Source\EmailTemplate</source_model>
+                    <config_path>giztop_review/notify/template</config_path>
+                </field>
+                <field id="sender_identity" translate="label comment" type="select" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Send Emails From</label>
+                    <comment>Email identity used as sender when the custom sender email below is empty. Resolved per store scope.</comment>
+                    <source_model>Magento\Config\Model\Config\Source\Email\Identity</source_model>
+                    <config_path>giztop_review/notify/sender_identity</config_path>
+                </field>
+                <field id="sender_email" translate="label comment" type="text" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Custom Sender Email</label>
+                    <comment>Optional. Overrides the email identity above. Leave empty to use the selected identity address.</comment>
+                    <config_path>giztop_review/notify/sender_email</config_path>
+                </field>
+                <field id="sender_name" translate="label comment" type="text" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Custom Sender Name</label>
+                    <comment>Optional. Used together with the custom sender email. Leave empty to fall back to the Store Name.</comment>
+                    <config_path>giztop_review/notify/sender_name</config_path>
+                </field>
+            </group>
+            <group id="turnstile" translate="label" type="text" sortOrder="60" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Human Verification (Cloudflare Turnstile)</label>
+                <comment>Adds a Cloudflare Turnstile challenge to the review form. Stays completely invisible to customers until both keys are filled in and Enabled is set to Yes.</comment>
+                <field id="enabled" translate="label comment" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Enabled</label>
+                    <comment>Requires both Site Key and Secret Key. If either key is empty the challenge is skipped and review submission behaves exactly as before.</comment>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <config_path>giztop_review/turnstile/enabled</config_path>
+                </field>
+                <field id="site_key" translate="label comment" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Site Key</label>
+                    <comment>Public key rendered into the widget (Cloudflare dashboard &gt; Turnstile &gt; your site).</comment>
+                    <config_path>giztop_review/turnstile/site_key</config_path>
+                </field>
+                <field id="secret_key" translate="label comment" type="obscure" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Secret Key</label>
+                    <comment>Private key used for server-side siteverify. Stored encrypted. Leave the asterisks untouched to keep the stored value; clear the field to remove it.</comment>
+                    <frontend_model>Giztop\ReviewEnhance\Model\Config\Frontend\Obscure</frontend_model>
+                    <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
+                    <config_path>giztop_review/turnstile/secret_key</config_path>
+                </field>
+                <field id="theme" translate="label" type="select" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Widget Theme</label>
+                    <source_model>Giztop\ReviewEnhance\Model\Config\Source\TurnstileTheme</source_model>
+                    <config_path>giztop_review/turnstile/theme</config_path>
+                </field>
+                <field id="size" translate="label" type="select" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Widget Size</label>
+                    <source_model>Giztop\ReviewEnhance\Model\Config\Source\TurnstileSize</source_model>
+                    <config_path>giztop_review/turnstile/size</config_path>
+                </field>
+                <field id="fail_mode" translate="label comment" type="select" sortOrder="60" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Behaviour When Cloudflare Is Unreachable</label>
+                    <comment>Only affects network/transport errors (timeout, DNS, TLS). An explicit Cloudflare rejection always rejects the review.</comment>
+                    <source_model>Giztop\ReviewEnhance\Model\Config\Source\TurnstileFailMode</source_model>
+                    <config_path>giztop_review/turnstile/fail_mode</config_path>
+                </field>
+                <field id="expected_hostname" translate="label comment" type="text" sortOrder="70" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Expected Hostname (advanced)</label>
+                    <comment>Leave EMPTY in production: the current store host is then required to match the token hostname. Only set a value to accept a different host, e.g. "example.com" while testing with the official Cloudflare test keys. A value left here by mistake weakens the check - restore it to empty after testing.</comment>
+                    <config_path>giztop_review/turnstile/expected_hostname</config_path>
+                </field>
+            </group>
+            <group id="webhook" translate="label" type="text" sortOrder="70" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Review Webhook (RabbitMQ)</label>
+                <comment>Publishes a signed JSON event to an external endpoint whenever a customer submits a review. Delivery is asynchronous: the event is queued on RabbitMQ and delivered by the giztop.review.webhook consumer service.</comment>
+                <field id="enabled" translate="label comment" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Enabled</label>
+                    <comment>Requires an Endpoint URL. When disabled nothing is published and the queue stays empty.</comment>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <config_path>giztop_review/webhook/enabled</config_path>
+                </field>
+                <field id="endpoint_url" translate="label comment" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Endpoint URL</label>
+                    <comment>Must be https:// and must not resolve to a private or reserved address (SSRF protection). Validated on save and again on every delivery.</comment>
+                    <backend_model>Giztop\ReviewEnhance\Model\Config\Backend\WebhookEndpoint</backend_model>
+                    <config_path>giztop_review/webhook/endpoint_url</config_path>
+                </field>
+                <field id="secret" translate="label comment" type="obscure" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Signing Secret</label>
+                    <comment>Used for the X-Giztop-Signature header: sha256=HMAC-SHA256(raw body, secret). Stored encrypted. Leave the asterisks untouched to keep the stored value; clear the field to remove it.</comment>
+                    <frontend_model>Giztop\ReviewEnhance\Model\Config\Frontend\Obscure</frontend_model>
+                    <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
+                    <config_path>giztop_review/webhook/secret</config_path>
+                </field>
+                <field id="timeout" translate="label comment" type="text" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Request Timeout (seconds)</label>
+                    <comment>Total cURL timeout per delivery attempt; the connect timeout is fixed at 3 seconds. Default: 10.</comment>
+                    <config_path>giztop_review/webhook/timeout</config_path>
+                </field>
+                <field id="max_attempts" translate="label comment" type="text" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Maximum Delivery Attempts</label>
+                    <comment>After the last failed attempt the payload is parked on the giztop.review.webhook.error queue. Backoff is 2, 4, 8, 16, then 30 seconds. Default: 5.</comment>
+                    <config_path>giztop_review/webhook/max_attempts</config_path>
+                </field>
+                <field id="include_detail" translate="label comment" type="select" sortOrder="60" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Include Review Text</label>
+                    <comment>When disabled the payload carries an empty detail field. Default: Yes.</comment>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <config_path>giztop_review/webhook/include_detail</config_path>
+                </field>
+                <field id="detail_max_length" translate="label comment" type="text" sortOrder="70" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Review Text Max Length</label>
+                    <comment>Characters. Longer bodies are truncated and flagged with detail_truncated=true. Default: 1000.</comment>
+                    <config_path>giztop_review/webhook/detail_max_length</config_path>
+                </field>
+                <field id="include_reviewer_email" translate="label comment" type="select" sortOrder="80" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Include Reviewer Email (plaintext)</label>
+                    <comment>Privacy sensitive. When disabled (default) the payload only carries nickname_masked (j***@g***.com). Enable only if the receiving system has a documented need and a lawful basis.</comment>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <config_path>giztop_review/webhook/include_reviewer_email</config_path>
+                </field>
+                <field id="user_agent" translate="label" type="text" sortOrder="90" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>User-Agent</label>
+                    <comment>Sent with every delivery so the receiver can identify the source. Default: Giztop-ReviewEnhance/1.0.</comment>
+                    <config_path>giztop_review/webhook/user_agent</config_path>
+                </field>
+            </group>
+        </section>
+    </system>
+
+</config>

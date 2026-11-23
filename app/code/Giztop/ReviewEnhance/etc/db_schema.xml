@@ -1,0 +1,50 @@
+<?xml version="1.0"?>
+<!--
+  GIZTOP Review Enhance - declarative schema.
+  giztop_review_reply_notification: one row per notified review (UNIQUE
+  review_id is the idempotency gate for ReplyNotifier). The recipient is
+  stored as md5 only - never as plaintext email.
+-->
+<schema xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:Setup/Declaration/Schema/etc/schema.xsd">
+    <table name="giztop_review_reply_notification" resource="default" engine="innodb" comment="Giztop Review Enhance - review reply notification log (idempotency gate)">
+        <column xsi:type="int" name="notification_id" padding="10" unsigned="true" nullable="false" identity="true" comment="Notification ID"/>
+        <column xsi:type="int" name="review_id" padding="10" unsigned="true" nullable="false" comment="Review ID"/>
+        <column xsi:type="int" name="product_id" padding="10" unsigned="true" nullable="false" comment="Product ID"/>
+        <column xsi:type="varchar" name="recipient_hash" nullable="false" length="32" comment="md5 of recipient email (no plaintext stored)"/>
+        <column xsi:type="varchar" name="status" nullable="false" length="16" comment="sent / failed"/>
+        <column xsi:type="varchar" name="error_message" nullable="true" length="255" comment="Exception class + truncated, email-redacted message"/>
+        <column xsi:type="timestamp" name="created_at" on_update="false" nullable="false" default="CURRENT_TIMESTAMP" comment="Created At"/>
+        <constraint xsi:type="primary" referenceId="PRIMARY">
+            <column name="notification_id"/>
+        </constraint>
+        <constraint xsi:type="unique" referenceId="GIZTOP_REVIEW_REPLY_NOTIFICATION_REVIEW_ID">
+            <column name="review_id"/>
+        </constraint>
+        <index xsi:type="index" referenceId="GIZTOP_REVIEW_REPLY_NOTIFICATION_PRODUCT_ID">
+            <column name="product_id"/>
+        </index>
+    </table>
+    <!-- Webhook delivery audit. One row per event_id (UNIQUE): the first attempt
+         inserts, every retry updates the same row (INSERT ... ON DUPLICATE KEY
+         UPDATE in Model\Webhook\WebhookLog). No FK on review_id: Magento core
+         tables avoid foreign keys, and an orphan row is harmless here. -->
+    <table name="giztop_review_webhook_log" resource="default" engine="innodb" comment="Giztop Review Enhance - webhook delivery audit log">
+        <column xsi:type="int" name="log_id" padding="10" unsigned="true" nullable="false" identity="true" comment="Log ID"/>
+        <column xsi:type="varchar" name="event_id" nullable="false" length="32" comment="Event UUID (idempotency key, stable across retries)"/>
+        <column xsi:type="int" name="review_id" padding="10" unsigned="true" nullable="false" comment="Review ID"/>
+        <column xsi:type="int" name="delivery_attempt" padding="10" unsigned="true" nullable="false" default="0" comment="Delivery attempt number (0 = first)"/>
+        <column xsi:type="varchar" name="status" nullable="false" length="16" comment="sent / failed"/>
+        <column xsi:type="int" name="http_code" padding="10" unsigned="true" nullable="true" comment="HTTP status code of the last attempt"/>
+        <column xsi:type="varchar" name="error_message" nullable="true" length="255" comment="Sanitized error (emails redacted, truncated)"/>
+        <column xsi:type="timestamp" name="created_at" on_update="false" nullable="false" default="CURRENT_TIMESTAMP" comment="Created At"/>
+        <constraint xsi:type="primary" referenceId="PRIMARY">
+            <column name="log_id"/>
+        </constraint>
+        <constraint xsi:type="unique" referenceId="GIZTOP_REVIEW_WEBHOOK_LOG_EVENT_ID">
+            <column name="event_id"/>
+        </constraint>
+        <index xsi:type="index" referenceId="GIZTOP_REVIEW_WEBHOOK_LOG_REVIEW_ID">
+            <column name="review_id"/>
+        </index>
+    </table>
+</schema>

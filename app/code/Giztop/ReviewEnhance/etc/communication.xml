@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<!--
+  GIZTOP Review Enhance - message queue topics.
+
+  giztop.review.submitted      published by Observer\ReviewSubmittedObserver,
+                               consumed by Model\Queue\ReviewWebhookConsumer
+  giztop.review.webhook.error  dead-letter topic used by the consumer once
+                               max_attempts is exhausted
+
+  request="string" keeps the payload an opaque JSON document: the receiver
+  contract is defined in Model\Webhook\PayloadBuilder, not in a PHP DTO, so no
+  schema change is needed when the payload grows.
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:Communication/etc/communication.xsd">
+    <topic name="giztop.review.submitted" request="string">
+        <handler name="giztop_review_webhook"
+                 type="Giztop\ReviewEnhance\Model\Queue\ReviewWebhookConsumer"
+                 method="process"/>
+    </topic>
+    <topic name="giztop.review.webhook.error" request="string"/>
+</config>

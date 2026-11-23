@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<!--
+  GIZTOP Review Enhance - queue topology (declared by bin/magento setup:upgrade).
+
+  exchange giztop.review (topic)
+    +=  routing key giztop.review.submitted      -> queue giztop.review.webhook
+    +=  routing key giztop.review.webhook.error  -> queue giztop.review.webhook.error
+
+  Nothing is bound to the legacy queues living in the "/" vhost: this topology
+  is declared in the gtmtest vhost configured in app/etc/env.php.
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework-message-queue:etc/topology.xsd">
+    <exchange name="giztop.review" type="topic" connection="amqp">
+        <binding id="giztop_review_submitted"
+                 topic="giztop.review.submitted"
+                 destinationType="queue"
+                 destination="giztop.review.webhook"/>
+        <binding id="giztop_review_webhook_error"
+                 topic="giztop.review.webhook.error"
+                 destinationType="queue"
+                 destination="giztop.review.webhook.error"/>
+    </exchange>
+</config>

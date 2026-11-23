@@ -1,0 +1,312 @@
+/*
+ * Giztop_ReviewEnhance — review list as Q&A chat bubbles + review form restyle.
+ * Scoped to .athlete-reviews-wrapper / #customer-reviews. Prefix: gr-
+ */
+
+/* ---------- list / bubbles ---------- */
+.athlete-reviews-wrapper #customer-reviews .gr-item {
+    animation: gr-fade-up 200ms ease-out both;
+}
+
+@keyframes gr-fade-up {
+    from {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .athlete-reviews-wrapper #customer-reviews .gr-item {
+        animation: none;
+    }
+    .athlete-reviews-wrapper #customer-reviews .gr-bubble {
+        transition: none;
+    }
+}
+
+.athlete-reviews-wrapper #customer-reviews .gr-item {
+    margin: 0 0 18px;
+}
+
+.athlete-reviews-wrapper #customer-reviews .gr-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+}
+
+.athlete-reviews-wrapper #customer-reviews .gr-row-store {
+    flex-direction: row-reverse;
+    margin-top: 8px;
+    padding-left: 20%;
+}
+
+.athlete-reviews-wrapper #customer-reviews .gr-avatar-wrap {
+    flex: 0 0 auto;
+}
+
+.athlete-reviews-wrapper #customer-reviews .gr-avatar,
+.athlete-reviews-wrapper #customer-reviews .gr-avatar-fallback {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: 600;
+    overflow: hidden;
+}
+
+.athlete-reviews-wrapper #customer-reviews .gr-avatar-fallback {
+    background: #2563EB;
+    color: #fff;
+}
+
+.athlete-reviews-wrapper #customer-reviews .gr-avatar-fallback-store,
+.athlete-reviews-wrapper #customer-reviews .gr-avatar-store {
+    background: linear-gradient(135deg, #2563EB, #1D4ED8);
+    color: #fff;
+}
+
+/* The theme logo is wide: render it inside a white circular chip instead of
+   letting it squash into a 36px circle. */
+.athlete-reviews-wrapper #customer-reviews img.gr-avatar-store {
+    background: #FFFFFF;
+    object-fit: contain;
+    padding: 4px;
+    box-shadow: inset 0 0 0 1px rgba(17, 24, 39, 0.08);
+    box-sizing: border-box;
+}
+
+/* bubbles */
+.athlete-reviews-wrapper #customer-reviews .gr-bubble {
+    max-width: 78%;
+    padding: 12px 14px;
+    border-radius: 16px;
+    transition: transform 150ms ease, box-shadow 150ms ease;
+}
+
+.athlete-reviews-wrapper #customer-reviews .gr-bubble:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(17, 24, 39, .08);
+}
+
+.athlete-reviews-wrapper #customer-reviews .gr-bubble-buyer {
+    background: #F1F3F6;
+    color: #111827;
+    border-radius: 16px 16px 16px 4px;
+}
+
+.athlete-reviews-wrapper #customer-reviews .gr-bubble-store {
+    background: linear-gradient(135deg, #2563EB, #1D4ED8);
+    color: #fff;
+    border-radius: 16px 16px 4px 16px;
+}
+
+/* bubble header: name / date / badge */
+.athlete-reviews-wrapper #customer-reviews .gr-bubble-head {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 6px;
+}
+
+.athlete-reviews-wrapper #customer-reviews .gr-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: #111827;
+}
+
+.athlete-reviews-wrapper #customer-reviews .gr-name-store {
+    color: #fff;
+}
+
+.athlete-reviews-wrapper #customer-reviews .gr-date {
+    font-size: 12px;
+    color: #6B7280;
+}
+
+.athlete-reviews-wrapper #customer-reviews .gr-date-store {
+    color: rgba(255, 255, 255, .75);
+}
+
+.athlete-reviews-wrapper #customer-reviews .gr-badge {
+    background: rgba(255, 255, 255, .18);
+    color: #fff;
+    font-size: 10px;
+    line-height: 1.4;
+    padding: 2px 6px;
+    border-radius: 999px;
+}
+
+/* rating mini bar */
+.athlete-reviews-wrapper #customer-reviews .gr-rating {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 6px;
+}
+
+.athlete-reviews-wrapper #customer-reviews .gr-rating-bar {
+    width: 64px;
+    height: 8px;
+    border-radius: 999px;
+    background: #E5E7EB;
+    overflow: hidden;
+    display: inline-block;
+}
+
+.athlete-reviews-wrapper #customer-reviews .gr-rating-fill {
+    display: block;
+    height: 100%;
+    border-radius: 999px;
+    background: #F59E0B;
+}
+
+.athlete-reviews-wrapper #customer-reviews .gr-rating-value {
+    font-size: 12px;
+    color: #6B7280;
+}
+
+/* bubble text */
+.athlete-reviews-wrapper #customer-reviews .gr-text {
+    font-size: 14px;
+    line-height: 1.6;
+    word-break: break-word;
+}
+
+.athlete-reviews-wrapper #customer-reviews .gr-text-store {
+    color: #fff;
+}
+
+/* hidden schema title */
+.athlete-reviews-wrapper #customer-reviews .gr-review-title {
+    display: none;
+}
+
+/* ---------- form ---------- */
+.athlete-reviews-wrapper .review-add .review-fields-wrapper .input-text,
+.athlete-reviews-wrapper .review-add .review-fields-wrapper textarea {
+    min-height: 44px;
+    border-radius: 10px;
+    border: 1px solid #E5E7EB;
+    padding: 10px 14px;
+    font-size: 14px;
+    transition: border-color 150ms ease, box-shadow 150ms ease;
+}
+
+.athlete-reviews-wrapper .review-add .review-fields-wrapper textarea {
+    min-height: 110px;
+}
+
+.athlete-reviews-wrapper .review-add .review-fields-wrapper .input-text:focus,
+.athlete-reviews-wrapper .review-add .review-fields-wrapper textarea:focus {
+    border-color: #2563EB;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, .12);
+    outline: none;
+}
+
+.athlete-reviews-wrapper .review-add .review-fields-wrapper .input-text.mage-error,
+.athlete-reviews-wrapper .review-add .review-fields-wrapper textarea.mage-error {
+    border-color: #DC2626;
+}
+
+.athlete-reviews-wrapper .review-add .review-fields-wrapper .field-note {
+    font-size: 12px;
+    color: #6B7280;
+    margin-top: 4px;
+}
+
+/* "or Name" is deliberately de-emphasised so most customers type an email */
+.athlete-reviews-wrapper .review-add .review-fields-wrapper .gr-label-optional {
+    display: inline-block;
+    margin-left: 5px;
+    font-size: 12px;
+    font-weight: 400;
+    font-style: normal;
+    color: #9CA3AF;
+    letter-spacing: 0;
+}
+
+.athlete-reviews-wrapper .review-add .review-form-actions .action.submit {
+    width: 100%;
+    min-height: 44px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, #2563EB, #1D4ED8);
+    border: none;
+    color: #fff;
+    font-size: 15px;
+    font-weight: 600;
+}
+
+.athlete-reviews-wrapper .review-add .review-form-actions .action.submit:hover,
+.athlete-reviews-wrapper .review-add .review-form-actions .action.submit:focus {
+    background: linear-gradient(135deg, #1D4ED8, #1E40AF);
+    color: #fff;
+}
+
+/* the theme lays the review form out in a narrow column; give it room now
+   that only two fields are left (email + review) */
+.athlete-reviews-wrapper .block.review-add .block-content {
+    max-width: 720px;
+}
+
+/* the theme hard-limits the form to ~500px; let it breathe */
+.athlete-reviews-wrapper .block.review-add #review-form,
+.athlete-reviews-wrapper .block.review-add .review-form {
+    width: 100%;
+    max-width: 720px;
+}
+
+.athlete-reviews-wrapper .block.review-add .review-fieldset {
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.athlete-reviews-wrapper .block.review-add .review-fields-wrapper,
+.athlete-reviews-wrapper .block.review-add .review-field-email,
+.athlete-reviews-wrapper .block.review-add .review-field-text {
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* light page background behind list, kept subtle */
+.athlete-reviews-wrapper #customer-reviews .block-content {
+    background: #F8FAFC;
+    border-radius: 16px;
+    padding: 16px;
+}
+
+/* ---------- mobile ---------- */
+@media (max-width: 767px) {
+    .athlete-reviews-wrapper #customer-reviews .gr-avatar,
+    .athlete-reviews-wrapper #customer-reviews .gr-avatar-fallback {
+        width: 32px;
+        height: 32px;
+        font-size: 13px;
+    }
+
+    .athlete-reviews-wrapper #customer-reviews .gr-bubble {
+        max-width: 88%;
+    }
+
+    /* short official replies would otherwise collapse into a narrow pill */
+    .athlete-reviews-wrapper #customer-reviews .gr-bubble-store {
+        min-width: 62%;
+    }
+
+    .athlete-reviews-wrapper #customer-reviews .gr-row-store {
+        padding-left: 0;
+    }
+
+    .athlete-reviews-wrapper #customer-reviews .gr-bubble-head {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 2px;
+    }
+}

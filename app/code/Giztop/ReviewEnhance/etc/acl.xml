@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<!--
+  GIZTOP Review Enhance - ACL.
+  Giztop_ReviewEnhance::config is registered under Magento_Backend::admin so
+  the module can hand out dedicated permissions later. The system config
+  section itself uses Magento_Config::config, which administrators already
+  have, so the config group is visible out of the box.
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:Acl/etc/acl.xsd">
+    <acl>
+        <resources>
+            <resource id="Magento_Backend::admin">
+                <resource id="Giztop_ReviewEnhance::config" title="Giztop Review Enhance" translate="label"/>
+            </resource>
+        </resources>
+    </acl>
+</config>

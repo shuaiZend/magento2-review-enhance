@@ -1,0 +1,45 @@
+<?php
+/**
+ * Giztop_ReviewEnhance: Cloudflare Turnstile widget for the review form.
+ *
+ * Renders nothing at all unless the feature is fully configured (enabled + site
+ * key + secret key), so shipping this template changes no user-visible
+ * behaviour while the feature is off.
+ *
+ * The widget is rendered implicitly by the Cloudflare script; the token is
+ * posted as "cf-turnstile-response" and verified server side by
+ * Plugin\TurnstileValidationPlugin.
+ *
+ * @var \Magento\Framework\View\Element\Template $block
+ * @var \Magento\Framework\Escaper $escaper
+ */
+
+$giztopConfig = $block->getData('giztop_config');
+if (!$giztopConfig instanceof \Giztop\ReviewEnhance\Model\Config) {
+    return;
+}
+
+if (!$giztopConfig->isTurnstileEnabled()) {
+    return;
+}
+
+$giztopSiteKey = $giztopConfig->getTurnstileSiteKey();
+if ($giztopSiteKey === '') {
+    return;
+}
+?>
+<div class="giztop-turnstile" data-giztop-turnstile="review">
+    <div class="cf-turnstile"
+         data-sitekey="<?= $escaper->escapeHtmlAttr($giztopSiteKey) ?>"
+         data-theme="<?= $escaper->escapeHtmlAttr($giztopConfig->getTurnstileTheme()) ?>"
+         data-size="<?= $escaper->escapeHtmlAttr($giztopConfig->getTurnstileSize()) ?>"
+         data-action="<?= $escaper->escapeHtmlAttr(\Giztop\ReviewEnhance\Model\Config::TURNSTILE_ACTION) ?>"></div>
+    <noscript>
+        <div class="message message-error">
+            <?= $escaper->escapeHtml(__('Please enable JavaScript to complete the human verification challenge.')) ?>
+        </div>
+    </noscript>
+</div>
+<script src="<?= $escaper->escapeUrl('https://challenges.cloudflare.com/turnstile/v0/api.js') ?>"
+        async
+        defer></script>

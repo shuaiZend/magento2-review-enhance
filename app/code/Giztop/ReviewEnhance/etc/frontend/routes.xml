@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<!--
+  GIZTOP Review Enhance - frontend routes.
+  Avatar endpoint: /giztopreview/avatar/view/id/{reviewId}/h/{sig}/
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:App/etc/routes.xsd">
+    <router id="standard">
+        <route id="giztopreview" frontName="giztopreview">
+            <module name="Giztop_ReviewEnhance"/>
+        </route>
+    </router>
+</config>

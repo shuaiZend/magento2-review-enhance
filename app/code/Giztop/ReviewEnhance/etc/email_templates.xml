@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<!--
+  GIZTOP Review Enhance - email templates.
+  The HTML body lives in view/frontend/email/review_reply.html (owned by the
+  frontend team).
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Email:etc/email_templates.xsd">
+    <template id="giztop_review_reply_template" label="Giztop Review Reply Notification" file="review_reply.html" type="html" module="Giztop_ReviewEnhance" area="frontend"/>
+</config>

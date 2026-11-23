@@ -1,0 +1,16 @@
+{
+  "name": "giztop-reviewenhance-e2e",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "E2E harness for Giztop_ReviewEnhance (review submission, Cloudflare Turnstile, RabbitMQ webhook)",
+  "scripts": {
+    "review:success": "./run-review-e2e.sh success",
+    "review:turnstile-pass": "./run-review-e2e.sh turnstile-pass",
+    "review:turnstile-fail": "./run-review-e2e.sh turnstile-fail",
+    "webhook": "./run-webhook-e2e.sh"
+  },
+  "dependencies": {
+    "playwright-core": "1.65.1"
+  }
+}

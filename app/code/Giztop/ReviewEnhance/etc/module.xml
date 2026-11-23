@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<!--
+  GIZTOP Review Enhance
+  Sequence:
+    - Magento_Review: plugins target Magento\Review\Model\Review
+    - Magento_Theme:  logo block fallback for store avatar
+    - Magento_Catalog: product review context
+    - Olegnax_ProductReviewsSummary: theme review templates load after us
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:Module:etc/module.xsd">
+    <module name="Giztop_ReviewEnhance" setup_version="1.0.0">
+        <sequence>
+            <module name="Magento_Review"/>
+            <module name="Magento_Theme"/>
+            <module name="Magento_Catalog"/>
+            <module name="Olegnax_ProductReviewsSummary"/>
+        </sequence>
+    </module>
+</config>

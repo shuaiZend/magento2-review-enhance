@@ -1,0 +1,67 @@
+<!--@subject {{trans "We replied to your review of %product" product=$product_name}}@-->
+<!--@vars {"var":"$product_name","html":"$review_html,$reply_html","plain":"$product_url,$customer_name,$store_name,$support_email"}@-->
+<!--@styles
+    body { background:#F1F3F6; margin:0; padding:24px 0; font-family:Arial,Helvetica,sans-serif; }
+    .gr-card { width:600px; max-width:600px; margin:0 auto; background:#FFFFFF; border-radius:12px; overflow:hidden; }
+    .gr-head { background:#2563EB; padding:20px 28px; color:#FFFFFF; font-size:16px; font-weight:600; }
+    .gr-body { padding:24px 28px; color:#111827; font-size:14px; line-height:1.6; }
+    .gr-label { font-size:12px; letter-spacing:.04em; text-transform:uppercase; color:#6B7280; margin:18px 0 6px; }
+    .gr-quote { background:#F8FAFC; border-left:3px solid #CBD5E1; padding:12px 14px; border-radius:6px; color:#374151; }
+    .gr-reply { background:#EFF6FF; border-left:3px solid #2563EB; padding:12px 14px; border-radius:6px; color:#1E3A8A; }
+    .gr-btn { display:inline-block; background:#2563EB; color:#FFFFFF !important; text-decoration:none; padding:12px 22px; border-radius:8px; font-weight:600; }
+    .gr-foot { padding:18px 28px 26px; color:#6B7280; font-size:12px; line-height:1.5; }
+@-->
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#F1F3F6;margin:0;padding:24px 0;font-family:Arial,Helvetica,sans-serif;">
+    <tr>
+        <td align="center">
+            <table role="presentation" class="gr-card" width="600" cellpadding="0" cellspacing="0" border="0" style="width:600px;max-width:600px;margin:0 auto;background-color:#FFFFFF;border-radius:12px;overflow:hidden;">
+                <tr>
+                    <td class="gr-head" style="background-color:#2563EB;padding:20px 28px;color:#FFFFFF;font-size:16px;font-weight:600;">
+                        {{var store_name}}
+                    </td>
+                </tr>
+                <tr>
+                    <td class="gr-body" style="padding:24px 28px;color:#111827;font-size:14px;line-height:1.6;">
+                        <p style="margin:0 0 8px;color:#111827;font-size:14px;line-height:1.6;">
+                            Hi {{var customer_name}}, thanks for your review &mdash; we just replied to it.
+                        </p>
+
+                        <p class="gr-label" style="margin:18px 0 6px;font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:#6B7280;">
+                            Your review
+                        </p>
+                        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+                            <tr>
+                                <td class="gr-quote" style="background-color:#F8FAFC;border-left:3px solid #CBD5E1;padding:12px 14px;border-radius:6px;color:#374151;font-size:14px;line-height:1.6;">
+                                    {{var review_html}}
+                                </td>
+                            </tr>
+                        </table>
+
+                        <p class="gr-label" style="margin:18px 0 6px;font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:#6B7280;">
+                            Our reply
+                        </p>
+                        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+                            <tr>
+                                <td class="gr-reply" style="background-color:#EFF6FF;border-left:3px solid #2563EB;padding:12px 14px;border-radius:6px;color:#1E3A8A;font-size:14px;line-height:1.6;">
+                                    {{var reply_html}}
+                                </td>
+                            </tr>
+                        </table>
+
+                        <p style="margin:24px 0 0;">
+                            <a class="gr-btn" href="{{var product_url}}" style="display:inline-block;background-color:#2563EB;color:#FFFFFF !important;text-decoration:none;padding:12px 22px;border-radius:8px;font-weight:600;font-size:14px;line-height:20px;height:44px;box-sizing:border-box;">
+                                View on site
+                            </a>
+                        </p>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="gr-foot" style="padding:18px 28px 26px;color:#6B7280;font-size:12px;line-height:1.5;">
+                        Questions? Reply to this email or write to <a href="mailto:{{var support_email}}" style="color:#2563EB;text-decoration:none;">{{var support_email}}</a>.<br />
+                        You receive this email because you left a review on {{var store_name}}. Your email is never published.
+                    </td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+</table>

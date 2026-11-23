@@ -1,0 +1,26 @@
+# Magento
+/var/
+/vendor/
+/app/etc/env.php
+/app/etc/config.php
+/pub/static/
+/pub/media/
+/generated/
+/bin/magento
+
+# E2E runtime artefacts
+e2e/node_modules/
+e2e/tls/
+e2e/*.jsonl
+e2e/*.log
+
+# Editor / OS
+.idea/
+.vscode/
+.DS_Store
+*.swp
+
+# Secrets
+*.pem
+*.key
+.env

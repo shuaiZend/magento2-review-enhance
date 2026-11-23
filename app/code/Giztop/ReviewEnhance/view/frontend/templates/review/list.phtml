@@ -1,0 +1,197 @@
+<?php
+/**
+ * Giztop_ReviewEnhance: product review list rendered as Q&A chat bubbles.
+ *
+ * @var \Magento\Review\Block\Product\View\ListView $block
+ * @var \Magento\Framework\Escaper $escaper
+ */
+
+$vm     = $block->getData('giztop_vm');
+$_items = $block->getReviewsCollection()->getItems();
+$format = $block->getDateFormat() ?: \IntlDateFormatter::SHORT;
+
+/** Column count for the extended summary wrapper (same as theme template). */
+$summaryBlocksCount = 0;
+try {
+    $settings = $this->helper('Olegnax\ProductReviewsSummary\Helper\Helper')->getConfig('olegnax_productreviewssummary/general');
+    $summaryBlocksCount += $settings['rating_bystar_rating'] ?? 0;
+    $summaryBlocksCount += $settings['rating_overall'] ?? 0;
+    $summaryBlocksCount += $settings['write_btn_after'] ?? 0;
+    $summaryBlocksCount += $settings['rating_breakdown'] ?? 0;
+} catch (\Throwable $e) {
+    $summaryBlocksCount = 0;
+}
+
+/** @var bool $enabled Whether the chat-bubble mode is active. */
+$enabled = ($vm !== null && $vm instanceof \Giztop\ReviewEnhance\ViewModel\ReviewView && $vm->isEnabled());
+?>
+<?php if (count($_items)): ?>
+<div class="block review-list" id="customer-reviews">
+    <div class="block-title">
+        <strong><?= $escaper->escapeHtml(__('Customer Reviews')) ?></strong>
+    </div>
+    <div class="block-content">
+        <div class="extended-review-summary-wrapper columns-<?= (int) $summaryBlocksCount ?>">
+            <?= $block->getChildHtml('review_summary') ?>
+            <?= $block->getChildHtml('review_by_rating') ?>
+            <?= $block->getChildHtml('review_ratings_breakdown') ?>
+            <?= $block->getChildHtml('review_review_button') ?>
+        </div>
+        <div class="toolbar review-toolbar">
+            <?= $block->getChildHtml('toolbar') ?>
+        </div>
+        <ol class="items review-items">
+        <?php if ($enabled): ?>
+            <?php foreach ($_items as $_review): ?>
+            <?php
+                $reviewId     = (int) $_review->getId();
+                $avatarUrl    = $vm->isEmailAuthor($_review->getNickname())
+                    ? $vm->getAvatarUrl($reviewId)
+                    : '';
+                $authorName   = $vm->getAuthorName($_review->getNickname());
+                $initial      = mb_strtoupper(mb_substr((string) $authorName, 0, 1));
+                $questionHtml = nl2br($escaper->escapeHtml($vm->getQuestion($_review->getDetail())));
+                $createdAt    = $block->formatDate($_review->getCreatedAt(), $format);
+                $votes        = $_review->getRatingVotes();
+                $percent      = 0;
+                if (count($votes)) {
+                    $firstVote = $votes->getFirstItem();
+                    $percent   = (int) round((float) $firstVote->getPercent());
+                }
+                $hasAnswer = $vm->hasAnswer($_review->getDetail());
+            ?>
+            <li class="item review-item gr-item" itemscope itemprop="review" itemtype="http://schema.org/Review">
+                <span class="gr-review-title" itemprop="name" hidden><?= $escaper->escapeHtml($_review->getTitle()) ?></span>
+                <div class="gr-row gr-row-buyer">
+                    <div class="gr-avatar-wrap">
+                        <?php if ($avatarUrl): ?>
+                            <img class="gr-avatar"
+                                 src="<?= $escaper->escapeUrl($avatarUrl) ?>"
+                                 width="36" height="36" loading="lazy" alt=""
+                                 onerror="this.style.display='none';var f=this.nextElementSibling;if(f){f.style.display='flex';}">
+                            <span class="gr-avatar-fallback" style="display:none;"><?= $escaper->escapeHtml($initial) ?></span>
+                        <?php else: ?>
+                            <span class="gr-avatar-fallback"><?= $escaper->escapeHtml($initial) ?></span>
+                        <?php endif; ?>
+                    </div>
+                    <div class="gr-bubble gr-bubble-buyer">
+                        <div class="gr-bubble-head">
+                            <strong class="gr-name" itemprop="author"><?= $escaper->escapeHtml($authorName) ?></strong>
+                            <time class="gr-date" itemprop="datePublished" datetime="<?= $escaper->escapeHtmlAttr($createdAt) ?>">
+                                <?= $escaper->escapeHtml($createdAt) ?>
+                            </time>
+                        </div>
+                        <?php if (count($votes)): ?>
+                        <div class="gr-rating" itemprop="reviewRating" itemscope itemtype="http://schema.org/Rating">
+                            <meta itemprop="worstRating" content="1"/>
+                            <meta itemprop="bestRating" content="100"/>
+                            <span class="gr-rating-bar" aria-hidden="true">
+                                <span class="gr-rating-fill" style="width:<?= $escaper->escapeHtmlAttr($percent) ?>%"></span>
+                            </span>
+                            <span class="gr-rating-value" itemprop="ratingValue"><?= $escaper->escapeHtml($percent) ?>%</span>
+                        </div>
+                        <?php endif; ?>
+                        <div class="gr-text" itemprop="description"><?= /* @noEscape */ $questionHtml ?></div>
+                    </div>
+                </div>
+                <?php if ($hasAnswer): ?>
+                <?php
+                    $storeAvatar    = $vm->getStoreAvatarUrl();
+                    $storeName      = $vm->getStoreName();
+                    $storeBadge     = $vm->getStoreBadge();
+                    $storeInitial   = mb_strtoupper(mb_substr((string) $storeName, 0, 1)) ?: 'G';
+                    $answerHtml     = nl2br($escaper->escapeHtml($vm->getAnswer($_review->getDetail())));
+                ?>
+                <div class="gr-row gr-row-store">
+                    <div class="gr-avatar-wrap gr-avatar-wrap-store">
+                        <?php if ($storeAvatar): ?>
+                            <img class="gr-avatar gr-avatar-store"
+                                 src="<?= $escaper->escapeUrl($storeAvatar) ?>"
+                                 width="36" height="36" loading="lazy" alt=""
+                                 onerror="this.style.display='none';var f=this.nextElementSibling;if(f){f.style.display='flex';}">
+                            <span class="gr-avatar-fallback gr-avatar-fallback-store" style="display:none;">G</span>
+                        <?php else: ?>
+                            <span class="gr-avatar-fallback gr-avatar-fallback-store"><?= $escaper->escapeHtml($storeInitial) ?></span>
+                        <?php endif; ?>
+                    </div>
+                    <div class="gr-bubble gr-bubble-store">
+                        <div class="gr-bubble-head">
+                            <strong class="gr-name gr-name-store"><?= $escaper->escapeHtml($storeName) ?></strong>
+                            <?php if ($storeBadge): ?>
+                            <span class="gr-badge"><?= $escaper->escapeHtml($storeBadge) ?></span>
+                            <?php endif; ?>
+                            <time class="gr-date gr-date-store"><?= $escaper->escapeHtml($createdAt) ?></time>
+                        </div>
+                        <div class="gr-text gr-text-store"><?= /* @noEscape */ $answerHtml ?></div>
+                    </div>
+                </div>
+                <?php endif; ?>
+            </li>
+            <?php endforeach; ?>
+        <?php else: ?>
+            <?php
+            /*
+             * Degraded mode: original Athlete2 theme structure (no chat bubbles).
+             * Privacy guard: review_detail.nickname may hold a customer email, so
+             * even the fallback must mask it - it cannot rely on the ViewModel
+             * being available here.
+             */
+            $grMaskFallbackName = static function (string $name): string {
+                $name = trim($name);
+                // Multi-level domains must be masked too: sub.example.org -> s***.org
+                if (preg_match('/^([^@\s]+)@([^@\s]+)\.([A-Za-z]{2,})$/', $name, $m)) {
+                    $local = mb_strlen($m[1]) <= 2 ? '***' : mb_substr($m[1], 0, 1) . '***';
+                    $domain = mb_substr(ltrim($m[2], '.'), 0, 1) . '***';
+                    return $local . '@' . $domain . '.' . $m[3];
+                }
+                return $name;
+            };
+            ?>
+            <?php foreach ($_items as $_review): ?>
+                <li class="item review-item" itemscope itemprop="review" itemtype="http://schema.org/Review">
+                    <div class="review-content-left">
+                        <div class="review-details">
+                            <p class="review-author">
+                                <span class="review-details-label"><?= $escaper->escapeHtml(__('Review by')) ?></span>
+                                <strong class="review-details-value" itemprop="author"><?= $escaper->escapeHtml($grMaskFallbackName((string) $_review->getNickname())) ?></strong>
+                            </p>
+                            <p class="review-date">
+                                <span class="review-details-label"><?= $escaper->escapeHtml(__('Posted on')) ?></span>
+                                <time class="review-details-value" itemprop="datePublished" datetime="<?= $escaper->escapeHtmlAttr($block->formatDate($_review->getCreatedAt(), $format)) ?>">
+                                    <?= $escaper->escapeHtml($block->formatDate($_review->getCreatedAt(), $format)) ?>
+                                </time>
+                            </p>
+                        </div>
+                        <?php if (count($_review->getRatingVotes())): ?>
+                        <div class="review-ratings">
+                            <?php foreach ($_review->getRatingVotes() as $_vote): ?>
+                            <div class="rating-summary item" itemprop="reviewRating" itemscope itemtype="http://schema.org/Rating">
+                                <span class="label rating-label"><span><?= $escaper->escapeHtml($_vote->getRatingCode()) ?></span></span>
+                                <div class="rating-result" title="<?= $escaper->escapeHtmlAttr($_vote->getPercent()) ?>%">
+                                    <meta itemprop="worstRating" content="1"/>
+                                    <meta itemprop="bestRating" content="100"/>
+                                    <span style="width:<?= $escaper->escapeHtmlAttr($_vote->getPercent()) ?>%">
+                                        <span itemprop="ratingValue"><?= $escaper->escapeHtml($_vote->getPercent()) ?>%</span>
+                                    </span>
+                                </div>
+                            </div>
+                            <?php endforeach; ?>
+                        </div>
+                        <?php endif; ?>
+                    </div>
+                    <div class="review-content-right">
+                        <div class="review-title" itemprop="name"><?= $escaper->escapeHtml($_review->getTitle()) ?></div>
+                        <div class="review-content" itemprop="description">
+                            <?= nl2br($escaper->escapeHtml($_review->getDetail())) ?>
+                        </div>
+                    </div>
+                </li>
+            <?php endforeach; ?>
+        <?php endif; ?>
+        </ol>
+        <div class="toolbar review-toolbar">
+            <?= $block->getChildHtml('toolbar') ?>
+        </div>
+    </div>
+</div>
+<?php endif; ?>

@@ -1,0 +1,64 @@
+<?xml version="1.0"?>
+<!--
+  GIZTOP Review Enhance - plugins.
+
+  On Magento\Review\Model\Review (in execution order):
+    - title(10):            fills an empty title from the review body
+    - email(20):            nickname-or-email contract on submission
+    - moderation(30):       keyword/domain blacklists (skipped in adminhtml)
+    - reply_notify(40):     sends the reviewer a "your question got a reply" email
+    - nickname_cache(45):   purges the local Gravatar cache on nickname change
+    - webhook_flag(50):     snapshots isObjectNew() for the commit-after observer
+
+  On Magento\Review\Controller\Product\Post (feature 1, off by default):
+    - turnstile(5):         Cloudflare Turnstile gate; the only around plugin in
+                            this module, because the requirement is "do not write
+                            anything at all", which only around can guarantee.
+
+  The admin form decoration is mounted on the concrete review edit BLOCK
+  (NOT on Magento\Framework\Data\Form): the admin template calls the block's
+  getForm() (defined in Magento\Backend\Block\Widget\Form), while
+  Magento\Framework\Data\Form::getForm() only "return $this" and is never
+  invoked when rendering the review edit page - an afterGetForm plugin on the
+  form object would silently never fire. Verified against 2.4.9 vendor.
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+    <type name="Magento\Review\Model\Review">
+        <plugin name="giztop_reviewenhance_review_title"
+                type="Giztop\ReviewEnhance\Plugin\ReviewTitlePlugin"
+                sortOrder="10"/>
+        <plugin name="giztop_reviewenhance_review_email"
+                type="Giztop\ReviewEnhance\Plugin\ReviewEmailPlugin"
+                sortOrder="20"/>
+        <plugin name="giztop_reviewenhance_review_moderation"
+                type="Giztop\ReviewEnhance\Plugin\ReviewModerationPlugin"
+                sortOrder="30"/>
+        <plugin name="giztop_reviewenhance_reply_notify"
+                type="Giztop\ReviewEnhance\Plugin\ReviewReplyNotifyPlugin"
+                sortOrder="40"/>
+        <plugin name="giztop_reviewenhance_nickname_cache"
+                type="Giztop\ReviewEnhance\Plugin\ReviewNicknameCachePlugin"
+                sortOrder="45"/>
+        <plugin name="giztop_reviewenhance_webhook_flag"
+                type="Giztop\ReviewEnhance\Plugin\ReviewWebhookFlagPlugin"
+                sortOrder="50"/>
+    </type>
+    <!-- Feature 1: human verification. No-op unless giztop_review/turnstile/enabled=1
+         and both keys are configured (see Model\Config::isTurnstileEnabled()). -->
+    <type name="Magento\Review\Controller\Product\Post">
+        <plugin name="giztop_reviewenhance_turnstile"
+                type="Giztop\ReviewEnhance\Plugin\TurnstileValidationPlugin"
+                sortOrder="5"/>
+    </type>
+    <type name="Magento\Review\Block\Adminhtml\Edit\Form">
+        <plugin name="giztop_reviewenhance_admin_form"
+                type="Giztop\ReviewEnhance\Plugin\AdminReviewFormPlugin"
+                sortOrder="10"/>
+    </type>
+    <!-- The nickname column can hold a customer email; GraphQL must not leak it. -->
+    <type name="Magento\ReviewGraphQl\Mapper\ReviewDataMapper">
+        <plugin name="giztop_reviewenhance_graphql_nickname"
+                type="Giztop\ReviewEnhance\Plugin\GraphQlReviewNicknamePlugin"
+                sortOrder="10"/>
+    </type>
+</config>

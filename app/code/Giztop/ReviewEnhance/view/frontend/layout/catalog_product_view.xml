@@ -1,0 +1,43 @@
+<?xml version="1.0"?>
+<!--
+  Giztop_ReviewEnhance: product review list -> chat bubbles, form -> email based.
+-->
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <head>
+        <css src="Giztop_ReviewEnhance::css/review-chat.css"/>
+    </head>
+    <body>
+        <referenceBlock name="product.info.product_additional_data">
+            <arguments>
+                <argument name="giztop_vm" xsi:type="object">Giztop\ReviewEnhance\ViewModel\ReviewView</argument>
+            </arguments>
+            <action method="setTemplate">
+                <argument name="template" xsi:type="string">Giztop_ReviewEnhance::review/list.phtml</argument>
+            </action>
+        </referenceBlock>
+        <referenceBlock name="product.review.form">
+            <action method="setTemplate">
+                <argument name="template" xsi:type="string">Giztop_ReviewEnhance::review/form.phtml</argument>
+            </action>
+            <!-- Feature 1: Cloudflare Turnstile. The template renders nothing at
+                 all unless giztop_review/turnstile/enabled=1 and both keys are
+                 configured, so the child block is harmless while the feature is
+                 off (see Model\Config::isTurnstileEnabled()).
+
+                 The argument MUST implement ArgumentInterface: the layout
+                 argument interpreter validates object arguments (both block
+                 arguments and action arguments) and logs "Instance of
+                 ...ArgumentInterface is expected, got ... instead" at CRITICAL
+                 level on every render otherwise. Model\Config implements the
+                 marker interface for that reason. -->
+            <block class="Magento\Framework\View\Element\Template"
+                   name="giztop_review_turnstile"
+                   as="giztop_review_turnstile"
+                   template="Giztop_ReviewEnhance::review/turnstile.phtml">
+                <arguments>
+                    <argument name="giztop_config" xsi:type="object">Giztop\ReviewEnhance\Model\Config</argument>
+                </arguments>
+            </block>
+        </referenceBlock>
+    </body>
+</page>

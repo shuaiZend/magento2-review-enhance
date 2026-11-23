@@ -1,0 +1,68 @@
+<?xml version="1.0"?>
+<!--
+  GIZTOP Review Enhance - default configuration values.
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Store:etc/config.xsd">
+    <default>
+        <giztop_review>
+            <chat>
+                <enabled>1</enabled>
+                <store_name>Giztop Support</store_name>
+                <store_badge>Official Reply</store_badge>
+                <store_avatar></store_avatar>
+            </chat>
+            <avatar>
+                <enabled>1</enabled>
+                <ttl>2592000</ttl>
+            </avatar>
+            <form>
+                <email_label>Email</email_label>
+            </form>
+            <moderation>
+                <enabled>0</enabled>
+                <keywords_blacklist></keywords_blacklist>
+                <domains_blacklist></domains_blacklist>
+                <domains_whitelist></domains_whitelist>
+                <whitelist_priority>domain_only</whitelist_priority>
+                <message>Your review contains content that is not allowed.</message>
+            </moderation>
+            <notify>
+                <enabled>0</enabled>
+                <template>giztop_review_reply_template</template>
+                <sender_identity>support</sender_identity>
+                <sender_email></sender_email>
+                <sender_name></sender_name>
+            </notify>
+            <!-- Feature 1: Cloudflare Turnstile. Off by default: an empty
+                 site_key/secret_key is treated as "not configured" as well. -->
+            <turnstile>
+                <enabled>0</enabled>
+                <site_key></site_key>
+                <secret_key></secret_key>
+                <theme>auto</theme>
+                <size>flexible</size>
+                <fail_mode>open</fail_mode>
+                <!-- Empty = use the current store host. Only set this to run the
+                     Cloudflare test keys, which always answer example.com. -->
+                <expected_hostname></expected_hostname>
+            </turnstile>
+            <!-- Feature 2: review webhook over RabbitMQ. Off by default. -->
+            <webhook>
+                <enabled>0</enabled>
+                <endpoint_url></endpoint_url>
+                <secret></secret>
+                <timeout>10</timeout>
+                <max_attempts>5</max_attempts>
+                <include_detail>1</include_detail>
+                <detail_max_length>1000</detail_max_length>
+                <include_reviewer_email>0</include_reviewer_email>
+                <user_agent>Giztop-ReviewEnhance/1.0</user_agent>
+                <!-- Test-only SSRF escape hatch. Intentionally absent from
+                     adminhtml/system.xml: set it only via
+                     `bin/magento config:set` with the lock-env flag or app/etc/env.php.
+                     Production MUST keep it at 0. -->
+                <allow_private_endpoint>0</allow_private_endpoint>
+            </webhook>
+        </giztop_review>
+    </default>
+</config>

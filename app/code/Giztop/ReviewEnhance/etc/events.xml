@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<!--
+  GIZTOP Review Enhance - event observers.
+
+  review_save_commit_after is dispatched from
+  Magento\Framework\Model\AbstractModel::afterCommitCallback(), i.e. after the
+  transaction committed. Listening to the commit-after event (instead of
+  review_save_after) guarantees no event is emitted for a rolled back review.
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:Event/etc/events.xsd">
+    <event name="review_save_commit_after">
+        <observer name="giztop_reviewenhance_webhook"
+                  instance="Giztop\ReviewEnhance\Observer\ReviewSubmittedObserver"/>
+    </event>
+</config>

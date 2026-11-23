@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<!--
+  GIZTOP Review Enhance - adminhtml DI.
+  The auto-expand bootstrap only exists in the admin area.
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+    <type name="Magento\Framework\View\Layout">
+        <plugin name="giztop_reviewenhance_layout_autoexpand"
+                type="Giztop\ReviewEnhance\Plugin\LayoutAutoExpandPlugin"
+                sortOrder="10"/>
+    </type>
+</config>

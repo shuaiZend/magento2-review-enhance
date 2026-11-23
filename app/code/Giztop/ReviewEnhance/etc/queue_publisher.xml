@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<!--
+  GIZTOP Review Enhance - queue publishers.
+
+  Both topics publish to the same topic exchange; routing is done by routing
+  key (= topic name), see etc/queue_topology.xml.
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework-message-queue:etc/publisher.xsd">
+    <publisher topic="giztop.review.submitted">
+        <connection name="amqp" exchange="giztop.review"/>
+    </publisher>
+    <publisher topic="giztop.review.webhook.error">
+        <connection name="amqp" exchange="giztop.review"/>
+    </publisher>
+</config>

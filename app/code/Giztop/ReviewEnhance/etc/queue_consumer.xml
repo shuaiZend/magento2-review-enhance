@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<!--
+  GIZTOP Review Enhance - queue consumer.
+
+  maxMessages/maxIdleTime are the camelCase attribute names required by
+  framework-message-queue/etc/consumer.xsd (the task description used
+  max_messages/max_idle_time, which the schema rejects).
+
+  The consumer is kept alive by systemd
+  (giztop-review-webhook-consumer.service), not by cron.
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework-message-queue:etc/consumer.xsd">
+    <consumer name="giztop.review.webhook"
+              queue="giztop.review.webhook"
+              handler="Giztop\ReviewEnhance\Model\Queue\ReviewWebhookConsumer::process"
+              connection="amqp"
+              maxMessages="1000"
+              maxIdleTime="60"/>
+</config>
