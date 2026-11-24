@@ -153,6 +153,19 @@ class ReviewWebhookConsumer
             }
 
             $channel = $this->config->getWebhookChannel();
+
+            // Guard: a Feishu/Lark bot answers HTTP 200 even when it rejects the
+            // payload, so pointing a "generic" channel at one looks successful
+            // while nothing is ever delivered. Warn loudly instead of failing
+            // silently.
+            if ($channel === WebhookChannel::GENERIC && $this->looksLikeFeishuBot($endpoint)) {
+                $this->logger->warning(
+                    'reviewenhance_webhook_consumer: endpoint looks like a Feishu/Lark bot but the '
+                    . 'Delivery Channel is "generic"; Feishu will reject the raw JSON payload. '
+                    . 'Set giztop_review/webhook/channel=feishu (event ' . $eventId . ')'
+                );
+            }
+
             if ($channel === WebhookChannel::FEISHU) {
                 $body = $this->feishuCardBuilder->buildEnvelope(
                     $payload,
@@ -191,6 +204,22 @@ class ReviewWebhookConsumer
                 . ', ' . get_class($e) . ': ' . mb_substr($e->getMessage(), 0, 160, 'UTF-8')
             );
         }
+    }
+
+    /**
+     * Whether the endpoint host belongs to Feishu / Lark custom bots.
+     *
+     * @param string $endpoint
+     * @return bool
+     */
+    private function looksLikeFeishuBot(string $endpoint): bool
+    {
+        $host = strtolower((string)parse_url($endpoint, PHP_URL_HOST));
+
+        return $host === 'open.feishu.cn'
+            || $host === 'open.larksuite.com'
+            || str_ends_with($host, '.feishu.cn')
+            || str_ends_with($host, '.larksuite.com');
     }
 
     /**
