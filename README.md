@@ -114,6 +114,7 @@ The feature stays completely inert unless `enabled`, `site_key` and `secret_key`
 | Field | Default | Notes |
 |---|---|---|
 | Enabled | `0` | |
+| Delivery Channel | `generic` | `generic` = raw JSON + `X-Giztop-Signature`; `feishu` = interactive card for a Feishu/Lark custom bot |
 | Endpoint URL | — | Must be `https://`. Private/reserved addresses are rejected. |
 | Secret | — | Used for HMAC signing. Stored encrypted. |
 | Timeout | `10` | Seconds |
@@ -124,6 +125,60 @@ The feature stays completely inert unless `enabled`, `site_key` and `secret_key`
 | User Agent | `Giztop-ReviewEnhance/1.0` | |
 
 ---
+
+## Feishu / Lark channel
+
+Set **Delivery Channel = Feishu / Lark custom bot** to post an interactive card instead of raw JSON.
+The Signing Secret field is then used as the **bot secret** (Feishu's own signature), not only for
+`X-Giztop-Signature`.
+
+### Signing
+
+Feishu expects a `timestamp` + `sign` pair in the body:
+
+```
+string_to_sign = "<timestamp>\n<secret>"
+sign           = base64( HMAC-SHA256( key = string_to_sign, data = "" ) )
+```
+
+Note the unusual part: the HMAC **key** is the string-to-sign and the message is empty. This is
+different from the generic channel, which signs the raw body with the secret as key.
+
+### Card content is editable in the admin
+
+`Stores > Configuration > Giztop > Review Enhance > Review Webhook` exposes a title and a body
+template. Both support these placeholders:
+
+| Placeholder | Value |
+|---|---|
+| `{{product_name}}` `{{product_sku}}` `{{product_url}}` | Product identity and link |
+| `{{rating}}` | This review's overall score (mean of its rating dimensions), e.g. `4.7` |
+| `{{product_rating}}` | The product's aggregate rating in stars, e.g. `4.5` |
+| `{{review_title}}` `{{review_detail}}` | Review text (detail already truncated per settings) |
+| `{{status}}` `{{status_label}}` | `pending` / `approved` / `not_approved` and a human-readable label |
+| `{{nickname}}` | Masked reviewer identity (`j***@g***.com`) |
+| `{{review_id}}` `{{created_at}}` `{{store_code}}` | Metadata |
+| `{{admin_url}}` | Review edit URL; also rendered as an "Open in admin" button under the card |
+
+Default body:
+
+```
+**{{product_name}}**
+Rating: {{rating}} / 5    Status: {{status_label}}
+From: {{nickname}}    {{created_at}}
+
+{{review_detail}}
+
+[View product]({{product_url}})
+```
+
+The header colour follows the review status: pending = orange, approved = green, not approved = red.
+
+### Success detection
+
+Feishu answers **HTTP 200 even when the request fails** — the real result is in the body
+(`{"code":0}` means success). The consumer therefore parses the response and treats any non-zero
+`code` as a delivery failure, so it is retried and logged instead of being silently recorded as sent.
 
 ## Webhook contract
 
@@ -237,6 +292,7 @@ export DB_USER=magento DB_NAME=magento DB_PASSWORD=…   # or read from env.php
 Notes:
 
 - Uses Cloudflare's public test keys, so no Turnstile account is needed.
+- The `turnstile-*` scenarios **overwrite** the Turnstile config. The script refuses to run them when a real site key is configured unless `FORCE=1` is set; the `success` scenario never touches config.
 - **Run one scenario at a time.** The cleanup phase deletes global config paths; two concurrent runs will delete each other's configuration and can produce false passes.
 - The harness reads DB credentials from `app/etc/env.php` inside a PHP process, so they never appear in `argv` or logs.
 

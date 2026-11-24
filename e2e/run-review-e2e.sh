@@ -44,6 +44,22 @@ enable_turnstile() {
 
 echo "== scenario: $SCENARIO =="
 
+# Safety: the turnstile-* scenarios overwrite the live keys. Refuse to run them
+# when a real (non-test) site key is configured, unless FORCE=1 is set.
+if [[ "$SCENARIO" == turnstile-* ]]; then
+  CURRENT_SITE=$(sql "SELECT value FROM core_config_data WHERE path=\"giztop_review/turnstile/site_key\" AND scope=\"default\" AND scope_id=0;" | tr -d "[:space:]")
+  case "$CURRENT_SITE" in
+    ""|1x00000000000000000000AA|2x00000000000000000000AB) : ;;
+    *)
+      if [[ "${FORCE:-0}" != "1" ]]; then
+        echo "REFUSING: a real Turnstile site key is configured ($CURRENT_SITE)." >&2
+        echo "This scenario would overwrite it. Re-run with FORCE=1 if you really mean it." >&2
+        exit 3
+      fi
+      ;;
+  esac
+fi
+
 case "$SCENARIO" in
   success)
     EXPECT=success
@@ -99,6 +115,9 @@ if [[ "$DELTA" -gt 0 && -n "$AFTER_MAX" ]]; then
   echo "  created_review_ids: $(sql "SELECT review_id FROM review WHERE review_id > $BEFORE_MAX ORDER BY review_id;" | tr '\n' ' ')"
 fi
 
-cleanup_turnstile
+# Only the turnstile-* scenarios touched the config; success must leave it alone.
+if [[ "$SCENARIO" == turnstile-* ]]; then
+  cleanup_turnstile
+fi
 [[ $FAILED -eq 0 ]] && echo "== RESULT: PASS ==" || echo "== RESULT: FAIL =="
 exit $FAILED

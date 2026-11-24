@@ -131,6 +131,7 @@ class HttpClient
                 'ok' => false,
                 'http_code' => $httpCode,
                 'error' => 'curl(' . $errorNumber . '): ' . mb_substr((string)$errorMessage, 0, 120, 'UTF-8'),
+                'body' => '',
             ];
         }
 
@@ -145,9 +146,15 @@ class HttpClient
                 'ok' => false,
                 'http_code' => $httpCode,
                 'error' => 'http ' . $httpCode . ($snippet !== '' ? ': ' . $snippet : ''),
+                'body' => is_string($responseBody) ? $responseBody : '',
             ];
         }
 
-        return ['ok' => true, 'http_code' => $httpCode, 'error' => ''];
+        return [
+            'ok' => true,
+            'http_code' => $httpCode,
+            'error' => '',
+            'body' => is_string($responseBody) ? $responseBody : '',
+        ];
     }
 }

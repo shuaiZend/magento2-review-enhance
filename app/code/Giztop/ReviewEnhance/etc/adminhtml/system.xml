@@ -173,6 +173,12 @@
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                     <config_path>giztop_review/webhook/enabled</config_path>
                 </field>
+                <field id="channel" translate="label comment" type="select" sortOrder="15" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Delivery Channel</label>
+                    <comment>Generic JSON: sends the documented payload with an X-Giztop-Signature header. Feishu / Lark custom bot: sends an interactive card and signs the request with timestamp + sign (the Signing Secret is then used as the bot secret).</comment>
+                    <source_model>Giztop\ReviewEnhance\Model\Config\Source\WebhookChannel</source_model>
+                    <config_path>giztop_review/webhook/channel</config_path>
+                </field>
                 <field id="endpoint_url" translate="label comment" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Endpoint URL</label>
                     <comment>Must be https:// and must not resolve to a private or reserved address (SSRF protection). Validated on save and again on every delivery.</comment>
@@ -185,6 +191,27 @@
                     <frontend_model>Giztop\ReviewEnhance\Model\Config\Frontend\Obscure</frontend_model>
                     <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
                     <config_path>giztop_review/webhook/secret</config_path>
+                </field>
+                <field id="feishu_card_title" translate="label comment" type="text" sortOrder="35" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Feishu Card Title</label>
+                    <comment>Only used when Delivery Channel = Feishu. Supports the same {{variables}} as the card body. Example: New review: {{product_name}}</comment>
+                    <depends><field id="channel">feishu</field></depends>
+                    <config_path>giztop_review/webhook/feishu_card_title</config_path>
+                </field>
+                <field id="feishu_card_template" translate="label comment" type="textarea" sortOrder="36" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Feishu Card Body</label>
+                    <comment><![CDATA[Only used when Delivery Channel = Feishu. Markdown is supported (lark_md): **bold**, [text](url).
+Available variables:
+{{product_name}} {{product_sku}} {{product_url}} {{product_rating}} {{rating}}
+{{review_title}} {{review_detail}} {{status}} {{status_label}}
+{{nickname}} {{review_id}} {{created_at}} {{admin_url}} {{store_code}}
+
+{{rating}} is this review's overall score (average of its rating dimensions, e.g. 4.7).
+{{product_rating}} is the product's aggregate rating (e.g. 4.5).
+{{status_label}} is human readable (Pending moderation / Approved / Not approved).
+{{admin_url}} is also rendered as an "Open in admin" button below the card body.]]></comment>
+                    <depends><field id="channel">feishu</field></depends>
+                    <config_path>giztop_review/webhook/feishu_card_template</config_path>
                 </field>
                 <field id="timeout" translate="label comment" type="text" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Request Timeout (seconds)</label>

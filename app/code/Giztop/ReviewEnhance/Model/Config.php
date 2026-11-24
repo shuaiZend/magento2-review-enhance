@@ -25,6 +25,7 @@ declare(strict_types=1);
 namespace Giztop\ReviewEnhance\Model;
 
 use Magento\Framework\App\Config\ScopeConfigInterface;
+use Giztop\ReviewEnhance\Model\Config\Source\WebhookChannel;
 use Magento\Framework\Encryption\EncryptorInterface;
 use Magento\Framework\View\Element\Block\ArgumentInterface;
 use Magento\Store\Model\ScopeInterface;
@@ -48,6 +49,9 @@ class Config implements ArgumentInterface
     public const XML_PATH_WEBHOOK_ENABLED = 'giztop_review/webhook/enabled';
     public const XML_PATH_WEBHOOK_ENDPOINT = 'giztop_review/webhook/endpoint_url';
     public const XML_PATH_WEBHOOK_SECRET = 'giztop_review/webhook/secret';
+    public const XML_PATH_WEBHOOK_CHANNEL = 'giztop_review/webhook/channel';
+    public const XML_PATH_WEBHOOK_FEISHU_CARD_TITLE = 'giztop_review/webhook/feishu_card_title';
+    public const XML_PATH_WEBHOOK_FEISHU_CARD_TEMPLATE = 'giztop_review/webhook/feishu_card_template';
     public const XML_PATH_WEBHOOK_TIMEOUT = 'giztop_review/webhook/timeout';
     public const XML_PATH_WEBHOOK_MAX_ATTEMPTS = 'giztop_review/webhook/max_attempts';
     public const XML_PATH_WEBHOOK_INCLUDE_DETAIL = 'giztop_review/webhook/include_detail';
@@ -263,6 +267,44 @@ class Config implements ArgumentInterface
         }
 
         return $this->maybeDecrypt($raw);
+    }
+
+    /**
+     * Delivery channel: generic JSON or a Feishu/Lark interactive card.
+     *
+     * @return string
+     */
+    public function getWebhookChannel(): string
+    {
+        $value = (string)$this->getValue(self::XML_PATH_WEBHOOK_CHANNEL);
+
+        return $value === WebhookChannel::FEISHU ? WebhookChannel::FEISHU : WebhookChannel::GENERIC;
+    }
+
+    /**
+     * Admin-configurable Feishu card title template.
+     *
+     * @return string
+     */
+    public function getFeishuCardTitle(): string
+    {
+        $value = (string)$this->getValue(self::XML_PATH_WEBHOOK_FEISHU_CARD_TITLE);
+
+        return $value !== '' ? $value : 'New review: {{product_name}}';
+    }
+
+    /**
+     * Admin-configurable Feishu card body template.
+     *
+     * @return string
+     */
+    public function getFeishuCardTemplate(): string
+    {
+        $value = (string)$this->getValue(self::XML_PATH_WEBHOOK_FEISHU_CARD_TEMPLATE);
+
+        return $value !== ''
+            ? $value
+            : "**{{product_name}}**\nRating: {{rating}} / 5    Status: {{status_label}}\n\n{{review_detail}}";
     }
 
     /**

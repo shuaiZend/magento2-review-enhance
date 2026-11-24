@@ -21,6 +21,8 @@ declare(strict_types=1);
 namespace Giztop\ReviewEnhance\Model\Queue;
 
 use Giztop\ReviewEnhance\Model\Config;
+use Giztop\ReviewEnhance\Model\Config\Source\WebhookChannel;
+use Giztop\ReviewEnhance\Model\Webhook\FeishuCardBuilder;
 use Giztop\ReviewEnhance\Model\Webhook\HttpClient;
 use Giztop\ReviewEnhance\Model\Webhook\PayloadBuilder;
 use Giztop\ReviewEnhance\Model\Webhook\WebhookLog;
@@ -87,6 +89,7 @@ class ReviewWebhookConsumer
         Config $config,
         HttpClient $httpClient,
         PayloadBuilder $payloadBuilder,
+        FeishuCardBuilder $feishuCardBuilder,
         WebhookLog $webhookLog,
         PublisherInterface $publisher,
         LoggerInterface $logger
@@ -94,10 +97,16 @@ class ReviewWebhookConsumer
         $this->config = $config;
         $this->httpClient = $httpClient;
         $this->payloadBuilder = $payloadBuilder;
+        $this->feishuCardBuilder = $feishuCardBuilder;
         $this->webhookLog = $webhookLog;
         $this->publisher = $publisher;
         $this->logger = $logger;
     }
+
+    /**
+     * @var FeishuCardBuilder
+     */
+    private FeishuCardBuilder $feishuCardBuilder;
 
     /**
      * Consume one message.
@@ -143,8 +152,23 @@ class ReviewWebhookConsumer
                 return;
             }
 
-            $body = $this->payloadBuilder->encode($payload);
+            $channel = $this->config->getWebhookChannel();
+            if ($channel === WebhookChannel::FEISHU) {
+                $body = $this->feishuCardBuilder->buildEnvelope(
+                    $payload,
+                    $this->config->getFeishuCardTitle(),
+                    $this->config->getFeishuCardTemplate(),
+                    $this->config->getWebhookSecret()
+                );
+            } else {
+                $body = $this->payloadBuilder->encode($payload);
+            }
+
             $result = $this->httpClient->post($endpoint, $body, self::EVENT_HEADER_NAME, $eventId);
+
+            if ($channel === WebhookChannel::FEISHU) {
+                $result = $this->checkFeishuResult($result);
+            }
 
             if ($result['ok']) {
                 $this->webhookLog->record(
@@ -167,6 +191,48 @@ class ReviewWebhookConsumer
                 . ', ' . get_class($e) . ': ' . mb_substr($e->getMessage(), 0, 160, 'UTF-8')
             );
         }
+    }
+
+    /**
+     * Feishu answers HTTP 200 even for business errors, so a successful HTTP
+     * status is not enough: the body must carry {"code":0}. Anything else is
+     * treated as a delivery failure so it is retried and logged instead of
+     * being silently recorded as sent.
+     *
+     * @param array{ok: bool, http_code: int, error: string, body?: string} $result
+     * @return array{ok: bool, http_code: int, error: string, body?: string}
+     */
+    private function checkFeishuResult(array $result): array
+    {
+        if (!$result['ok']) {
+            return $result;
+        }
+
+        $body = isset($result['body']) && is_string($result['body']) ? $result['body'] : '';
+        $decoded = json_decode($body, true);
+
+        if (!is_array($decoded)) {
+            return [
+                'ok' => false,
+                'http_code' => $result['http_code'],
+                'error' => 'unparseable feishu response',
+                'body' => $body,
+            ];
+        }
+
+        $code = isset($decoded['code']) ? (int)$decoded['code'] : 0;
+        if ($code !== 0) {
+            $message = isset($decoded['msg']) && is_string($decoded['msg']) ? $decoded['msg'] : 'unknown error';
+
+            return [
+                'ok' => false,
+                'http_code' => $result['http_code'],
+                'error' => 'feishu code ' . $code . ': ' . mb_substr($message, 0, 120, 'UTF-8'),
+                'body' => $body,
+            ];
+        }
+
+        return $result;
     }
 
     /**

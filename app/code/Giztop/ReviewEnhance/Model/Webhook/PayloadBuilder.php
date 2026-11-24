@@ -28,6 +28,7 @@ namespace Giztop\ReviewEnhance\Model\Webhook;
 use Giztop\ReviewEnhance\Helper\Email as EmailHelper;
 use Giztop\ReviewEnhance\Model\Config;
 use Magento\Catalog\Api\ProductRepositoryInterface;
+use Magento\Framework\App\ResourceConnection;
 use Magento\Review\Model\Review;
 use Magento\Store\Model\StoreManagerInterface;
 use Psr\Log\LoggerInterface;
@@ -79,16 +80,23 @@ class PayloadBuilder
      * @param EmailHelper $emailHelper
      * @param LoggerInterface $logger
      */
+    /**
+     * @var ResourceConnection
+     */
+    private ResourceConnection $resource;
+
     public function __construct(
         Config $config,
         StoreManagerInterface $storeManager,
         ProductRepositoryInterface $productRepository,
+        ResourceConnection $resource,
         EmailHelper $emailHelper,
         LoggerInterface $logger
     ) {
         $this->config = $config;
         $this->storeManager = $storeManager;
         $this->productRepository = $productRepository;
+        $this->resource = $resource;
         $this->emailHelper = $emailHelper;
         $this->logger = $logger;
     }
@@ -118,6 +126,8 @@ class PayloadBuilder
 
         [$detail, $truncated] = $this->prepareDetail((string)$review->getDetail());
 
+        $ratings = $this->buildRatings($review);
+
         $reviewData = [
             'id' => (int)$review->getId(),
             'status_id' => (int)$review->getStatusId(),
@@ -128,6 +138,7 @@ class PayloadBuilder
             'nickname_masked' => $this->maskNickname($nickname),
             'has_email' => $isEmail,
             'created_at' => $this->formatDate((string)$review->getCreatedAt()),
+            'rating' => $this->averageRating($ratings),
         ];
 
         if ($this->config->isWebhookReviewerEmailIncluded() && $isEmail) {
@@ -144,8 +155,8 @@ class PayloadBuilder
                 'code' => $storeCode,
             ],
             'review' => $reviewData,
-            'product' => $this->buildProduct((int)$review->getEntityPkValue(), $storeId),
-            'ratings' => $this->buildRatings($review),
+            'product' => $this->buildProductWithRating((int)$review->getEntityPkValue(), $storeId),
+            'ratings' => $ratings,
             'admin_url' => $this->buildAdminUrl((int)$review->getId()),
         ];
     }
@@ -247,6 +258,80 @@ class PayloadBuilder
         }
 
         return $result;
+    }
+
+    /**
+     * Product block including the aggregate rating.
+     *
+     * @param int $productId
+     * @param int $storeId
+     * @return array<string, mixed>
+     */
+    private function buildProductWithRating(int $productId, int $storeId): array
+    {
+        $product = $this->buildProduct($productId, $storeId);
+        $product['rating'] = $this->buildProductRating($productId, $storeId);
+
+        return $product;
+    }
+
+    /**
+     * Aggregate product rating in stars (0 when the product has no approved
+     * reviews yet). Derived from review_entity_summary.rating_summary, which
+     * Magento stores as a 0-100 percentage.
+     *
+     * @param int $productId
+     * @param int $storeId
+     * @return float
+     */
+    private function buildProductRating(int $productId, int $storeId): float
+    {
+        if ($productId <= 0) {
+            return 0.0;
+        }
+
+        try {
+            $connection = $this->resource->getConnection();
+            $select = $connection->select()
+                ->from(
+                    $this->resource->getTableName('review_entity_summary'),
+                    ['rating_summary']
+                )
+                ->where('entity_pk_value = ?', $productId)
+                ->where('store_id = ?', $storeId)
+                ->where('entity_type = ?', Review::ENTITY_PRODUCT)
+                ->limit(1);
+
+            $percent = (int)$connection->fetchOne($select);
+
+            return $percent > 0 ? round($percent / 20, 1) : 0.0;
+        } catch (\Throwable $e) {
+            $this->logger->warning(
+                'reviewenhance_webhook_payload: product rating lookup failed, ' . get_class($e)
+            );
+
+            return 0.0;
+        }
+    }
+
+    /**
+     * Overall score of this review: the mean of its rating dimensions.
+     *
+     * @param array<int, array{code: string, value: int, label: string}> $ratings
+     * @return float
+     */
+    private function averageRating(array $ratings): float
+    {
+        if ($ratings === []) {
+            return 0.0;
+        }
+
+        $sum = 0;
+        foreach ($ratings as $rating) {
+            $sum += (int)($rating['value'] ?? 0);
+        }
+
+        return round($sum / count($ratings), 1);
     }
 
     /**
