@@ -65,35 +65,63 @@ class FeishuCardBuilder
 
         $body = trim($this->render($bodyTemplate, $vars));
         if ($body === '') {
-            $body = trim($this->render("{{review_detail}}", $vars));
+            $body = trim($this->render('{{review_title}}', $vars));
         }
 
         $elements = [
+            [
+                'tag' => 'div',
+                'fields' => [
+                    $this->field('Rating', $this->stars($vars['rating'] ?? '')),
+                    $this->field('Reviewer', (string)($vars['nickname'] ?? '')),
+                    $this->field('Time', (string)($vars['created_at'] ?? '')),
+                    $this->field('Product', $this->stars($vars['product_rating'] ?? '')),
+                ],
+            ],
+            ['tag' => 'hr'],
             [
                 'tag' => 'div',
                 'text' => ['tag' => 'lark_md', 'content' => $body],
             ],
         ];
 
+        $actions = [];
         $adminUrl = (string)($vars['admin_url'] ?? '');
+        $productUrl = (string)($vars['product_url'] ?? '');
         if ($adminUrl !== '') {
-            $elements[] = [
-                'tag' => 'action',
-                'actions' => [
-                    [
-                        'tag' => 'button',
-                        'text' => ['tag' => 'plain_text', 'content' => 'Open in admin'],
-                        'type' => 'primary',
-                        'url' => $adminUrl,
-                    ],
-                ],
+            $actions[] = [
+                'tag' => 'button',
+                'text' => ['tag' => 'plain_text', 'content' => 'Open in admin'],
+                'type' => 'primary',
+                'url' => $adminUrl,
             ];
         }
+        if ($productUrl !== '') {
+            $actions[] = [
+                'tag' => 'button',
+                'text' => ['tag' => 'plain_text', 'content' => 'View product'],
+                'type' => 'default',
+                'url' => $productUrl,
+            ];
+        }
+        if ($actions !== []) {
+            $elements[] = ['tag' => 'action', 'actions' => $actions];
+        }
+
+        $footer = 'Review #' . (string)($vars['review_id'] ?? '');
+        $storeCode = (string)($vars['store_code'] ?? '');
+        if ($storeCode !== '') {
+            $footer .= ' · ' . $storeCode;
+        }
+        $elements[] = [
+            'tag' => 'note',
+            'elements' => [['tag' => 'plain_text', 'content' => $footer]],
+        ];
 
         $envelope = [
             'msg_type' => 'interactive',
             'card' => [
-                'config' => ['wide_screen_mode' => true],
+                'config' => ['wide_screen_mode' => true, 'enable_forward' => true],
                 'header' => [
                     'template' => $this->statusColor((string)($vars['status'] ?? '')),
                     'title' => ['tag' => 'plain_text', 'content' => $title],
@@ -111,6 +139,38 @@ class FeishuCardBuilder
         $json = json_encode($envelope, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
 
         return is_string($json) ? $json : '{}';
+    }
+
+    /**
+     * One key/value cell of the two-column meta block.
+     *
+     * @param string $label
+     * @param string $value
+     * @return array<string, mixed>
+     */
+    private function field(string $label, string $value): array
+    {
+        $value = $value !== '' ? $value : '—';
+
+        return [
+            'is_short' => true,
+            'text' => ['tag' => 'lark_md', 'content' => '**' . $label . "**\n" . $value],
+        ];
+    }
+
+    /**
+     * Render a rating as a star string, or '' when unknown.
+     *
+     * @param string $rating
+     * @return string
+     */
+    private function stars(string $rating): string
+    {
+        if ($rating === '') {
+            return '';
+        }
+
+        return '⭐ ' . $rating . ' / 5';
     }
 
     /**

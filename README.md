@@ -160,19 +160,38 @@ template. Both support these placeholders:
 | `{{review_id}}` `{{created_at}}` `{{store_code}}` | Metadata |
 | `{{admin_url}}` | Review edit URL; also rendered as an "Open in admin" button under the card |
 
-Default body:
+### Card layout
 
 ```
-**{{product_name}}**
-Rating: {{rating}} / 5    Status: {{status_label}}
-From: {{nickname}}    {{created_at}}
+┌─ header (colour by status) ────────────────────────┐
+│ New review · <product name>                        │
+├────────────────────────────────────────────────────┤
+│ **Rating**        │ **Reviewer**                   │
+│ ⭐ 4.7 / 5         │ j***@g***.com                  │
+│ **Time**          │ **Product**                    │
+│ 2026-11-24 10:05  │ ⭐ 4.5 / 5                     │
+├──────────────────── hr ────────────────────────────┤
+│ **<review title>**                                 │
+│ <review body>                                      │
+├────────────────────────────────────────────────────┤
+│ [Open in admin]  [View product]                    │
+│ Review #411800 · default                           │
+└────────────────────────────────────────────────────┘
+```
+
+The rating / reviewer / time / product-rating block, the two action buttons and the footer
+are rendered automatically. **Only the review body is template-driven**, which keeps the admin
+form short: by default it is
+
+```
+**{{review_title}}**
 
 {{review_detail}}
-
-[View product]({{product_url}})
 ```
 
-The header colour follows the review status: pending = orange, approved = green, not approved = red.
+The review status is deliberately **not** shown: every review enters the queue as *Pending*, so a
+status line would be noise on every card. `{{status_label}}` is still available if you want it back.
+The header colour still follows the status (pending = orange, approved = green, not approved = red).
 
 ### Success detection
 

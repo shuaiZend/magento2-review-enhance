@@ -51,13 +51,9 @@
                 <enabled>0</enabled>
                 <channel>generic</channel>
                 <feishu_card_title>New review: {{product_name}}</feishu_card_title>
-                <feishu_card_template><![CDATA[**{{product_name}}**
-Rating: {{rating}} / 5    Status: {{status_label}}
-From: {{nickname}}    {{created_at}}
+                <feishu_card_template><![CDATA[**{{review_title}}**
 
-{{review_detail}}
-
-[View product]({{product_url}})]]></feishu_card_template>
+{{review_detail}}]]></feishu_card_template>
                 <endpoint_url></endpoint_url>
                 <secret></secret>
                 <timeout>10</timeout>

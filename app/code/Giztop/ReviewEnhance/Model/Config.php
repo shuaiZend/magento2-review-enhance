@@ -304,7 +304,7 @@ class Config implements ArgumentInterface
 
         return $value !== ''
             ? $value
-            : "**{{product_name}}**\nRating: {{rating}} / 5    Status: {{status_label}}\n\n{{review_detail}}";
+            : "**{{review_title}}**\n\n{{review_detail}}";
     }
 
     /**

@@ -200,16 +200,22 @@
                 </field>
                 <field id="feishu_card_template" translate="label comment" type="textarea" sortOrder="36" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Feishu Card Body</label>
-                    <comment><![CDATA[Only used when Delivery Channel = Feishu. Markdown is supported (lark_md): **bold**, [text](url).
-Available variables:
-{{product_name}} {{product_sku}} {{product_url}} {{product_rating}} {{rating}}
-{{review_title}} {{review_detail}} {{status}} {{status_label}}
-{{nickname}} {{review_id}} {{created_at}} {{admin_url}} {{store_code}}
+                    <comment><![CDATA[Only used when Delivery Channel = Feishu. This text becomes the review body of the card; the rating / reviewer / time / product-rating block, the action buttons and the footer are rendered automatically.
 
-{{rating}} is this review's overall score (average of its rating dimensions, e.g. 4.7).
-{{product_rating}} is the product's aggregate rating (e.g. 4.5).
-{{status_label}} is human readable (Pending moderation / Approved / Not approved).
-{{admin_url}} is also rendered as an "Open in admin" button below the card body.]]></comment>
+Markdown is supported (lark_md): **bold**, [text](url), line breaks.
+
+Available variables:
+{{review_title}} {{review_detail}}
+{{product_name}} {{product_sku}} {{product_url}} {{product_rating}} {{rating}}
+{{nickname}} {{review_id}} {{created_at}} {{admin_url}} {{store_code}}
+{{status}} {{status_label}}
+
+Typical value:
+**{{review_title}}**
+
+{{review_detail}}
+
+Note: the review status is not shown by default because every review enters the queue as Pending. {{status_label}} is still available if you want it back.]]></comment>
                     <depends><field id="channel">feishu</field></depends>
                     <config_path>giztop_review/webhook/feishu_card_template</config_path>
                 </field>
