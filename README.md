@@ -292,6 +292,20 @@ Key design points:
 
 ---
 
+## Content Security Policy
+
+The module ships `etc/csp_whitelist.xml`, which adds `https://challenges.cloudflare.com` to
+`script-src`, `frame-src`, `connect-src` and `img-src`. Without it, every storefront page view logs
+a report-only violation for the Turnstile bootstrap script, and the widget breaks outright once the
+policy is enforced.
+
+Note that Magento ships `csp/mode/storefront/report_only = 1` by default: the header is
+`Content-Security-Policy-Report-Only`, so violations are logged but nothing is blocked. Adding the
+whitelist keeps the console clean and makes the module ready for enforcement.
+
+If you do switch to enforcement, whitelist every third-party host your storefront actually uses
+(payment, analytics, chat widgets) first — otherwise the storefront will break.
+
 ## E2E harness
 
 `e2e/` contains a Playwright-based harness that drives a real browser against the storefront. It was written because curl cannot exercise the form: Magento's cached product pages carry a `form_key` belonging to whichever session rendered the cached copy, so a stateless client can never pass `form_key` validation.

@@ -1,0 +1,40 @@
+<?xml version="1.0"?>
+<!--
+  GIZTOP Review Enhance
+
+  Content Security Policy whitelist for Cloudflare Turnstile.
+
+  Turnstile loads its bootstrap script from challenges.cloudflare.com, renders the
+  challenge inside an iframe served from the same origin, and performs XHR calls
+  back to it. Without these entries the storefront CSP logs report-only violations
+  for every page view, and the widget breaks outright once the policy is enforced
+  (csp/mode/storefront/report_only = 0).
+
+  @category  Giztop
+  @package   Giztop_ReviewEnhance
+-->
+<csp_whitelist xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+               xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Csp:etc/csp_whitelist.xsd">
+    <policies>
+        <policy id="script-src">
+            <values>
+                <value id="giztop-turnstile-script" type="host">https://challenges.cloudflare.com</value>
+            </values>
+        </policy>
+        <policy id="frame-src">
+            <values>
+                <value id="giztop-turnstile-frame" type="host">https://challenges.cloudflare.com</value>
+            </values>
+        </policy>
+        <policy id="connect-src">
+            <values>
+                <value id="giztop-turnstile-connect" type="host">https://challenges.cloudflare.com</value>
+            </values>
+        </policy>
+        <policy id="img-src">
+            <values>
+                <value id="giztop-turnstile-img" type="host">https://challenges.cloudflare.com</value>
+            </values>
+        </policy>
+    </policies>
+</csp_whitelist>
