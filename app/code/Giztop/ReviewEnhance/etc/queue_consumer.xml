@@ -15,5 +15,5 @@
               handler="Giztop\ReviewEnhance\Model\Queue\ReviewWebhookConsumer::process"
               connection="amqp"
               maxMessages="1000"
-              maxIdleTime="60"/>
+              maxIdleTime="600"/>
 </config>
